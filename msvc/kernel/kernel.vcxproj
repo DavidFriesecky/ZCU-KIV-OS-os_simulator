@@ -20,16 +20,32 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\api\api.cpp" />
+    <ClCompile Include="..\..\src\kernel\fat12_functions.cpp" />
+    <ClCompile Include="..\..\src\kernel\fat12_parts.cpp" />
     <ClCompile Include="..\..\src\kernel\handles.cpp" />
     <ClCompile Include="..\..\src\kernel\io.cpp" />
+    <ClCompile Include="..\..\src\kernel\io_handles.cpp" />
     <ClCompile Include="..\..\src\kernel\kernel.cpp" />
+    <ClCompile Include="..\..\src\kernel\pipe.cpp" />
+    <ClCompile Include="..\..\src\kernel\process.cpp" />
+    <ClCompile Include="..\..\src\kernel\process_controller.cpp" />
+    <ClCompile Include="..\..\src\kernel\semaphore.cpp" />
+    <ClCompile Include="..\..\src\kernel\thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\api\api.h" />
     <ClInclude Include="..\..\src\api\hal.h" />
     <ClInclude Include="..\..\src\kernel\handles.h" />
+    <ClInclude Include="..\..\src\kernel\fat12_header.h" />
     <ClInclude Include="..\..\src\kernel\io.h" />
+    <ClInclude Include="..\..\src\kernel\io_handles.h" />
     <ClInclude Include="..\..\src\kernel\kernel.h" />
+    <ClInclude Include="..\..\src\kernel\pipe.h" />
+    <ClInclude Include="..\..\src\kernel\process.h" />
+    <ClInclude Include="..\..\src\kernel\process_controller.h" />
+    <ClInclude Include="..\..\src\kernel\State.h" />
+    <ClInclude Include="..\..\src\kernel\semaphore.h" />
+    <ClInclude Include="..\..\src\kernel\thread.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4305463-59C5-40C3-9A1A-92976A40562D}</ProjectGuid>

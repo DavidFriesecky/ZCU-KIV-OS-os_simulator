@@ -1,20 +1,19 @@
 #pragma once
 
 #include "..\api\api.h"
+#include "rtl.h"
+#include "command_executor.h"
+#include "command_parser.h"
 
-extern "C" size_t __stdcall shell(const kiv_hal::TRegisters &regs);
+#define PATH_MAX_SIZE 4096
 
+extern bool is_echo_enabled;
 
-//nasledujici funkce si dejte do vlastnich souboru
-//cd nemuze byt externi program, ale vestavny prikaz shellu!
-extern "C" size_t __stdcall type(const kiv_hal::TRegisters &regs) { return 0; };
-extern "C" size_t __stdcall md(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall rd(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall dir(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall echo(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall find(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall sort(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall rgen(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall freq(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall tasklist(const kiv_hal::TRegisters &regs) { return 0; }
-extern "C" size_t __stdcall shutdown(const kiv_hal::TRegisters &regs) { return 0; }
+const char* intro = "Vitejte v KIV/OS.\n";
+const char* new_line = "\n";
+const char* prompt = "C:";
+const char* beak = ">";
+
+bool sig_shutdown = false;
+
+extern "C" size_t __stdcall shell(const kiv_hal::TRegisters& regs);

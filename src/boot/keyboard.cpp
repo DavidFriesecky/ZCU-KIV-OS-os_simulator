@@ -7,8 +7,9 @@
 HANDLE hConsoleInput = GetStdHandle(STD_INPUT_HANDLE);
 bool Std_In_Redirected = GetFileType(hConsoleInput) != FILE_TYPE_CHAR;
 bool Std_In_Is_Open = true;
+bool Recover_From_Cancel_Io = false;
 
-std::queue<decltype(kiv_hal::TRegisters::rax.x)> Keyboard_Buffer;
+std::queue<char> Keyboard_Buffer;
 const size_t Max_Keyboard_Buffer_Size = 16;	//default BIOS size
 
 bool Init_Keyboard() {
@@ -46,34 +47,50 @@ bool Peek_Char() {
 }
 
 bool Read_Char(decltype(kiv_hal::TRegisters::rax.x) &result_ch) {
-	if (!Keyboard_Buffer.empty()) {		//nejprve prehrajeme, co mohl programator vlozit du bufferu klavesnice
-		result_ch = Keyboard_Buffer.front();
-		Keyboard_Buffer.pop();
+	auto check_and_replay_buffer = [&result_ch]()->bool {
+		const bool replay = !Keyboard_Buffer.empty();
+		if (replay) {
+			result_ch = Keyboard_Buffer.front();
+			Keyboard_Buffer.pop();
+		}
+
+		return replay;
+	};
+	
+	//nejprve prehrajeme, co mohl programator vlozit do bufferu klavesnice
+	if (check_and_replay_buffer())
 		return true;
+
+	if (Recover_From_Cancel_Io && !Std_In_Redirected) {
+		clearerr_s(stdin); //muze selhat	
+		Recover_From_Cancel_Io = false;
 	}
 
-
 	char ch;
-	DWORD read;
-
+	DWORD read;	
+	
 	Std_In_Is_Open = ReadFile(hConsoleInput, &ch, 1, &read, NULL);
 
 	if (Std_In_Is_Open)	//ReadConsoleA by neprecetlo presmerovany vstup ze souboru 
 		result_ch = read > 0 ? ch : static_cast<std::remove_reference<decltype(result_ch)>::type>(kiv_hal::NControl_Codes::NUL);
-	else 
-		result_ch = static_cast<std::remove_reference<decltype(result_ch)>::type>(kiv_hal::NControl_Codes::EOT);	//chyba, patrne je zavren vstupni handle			
+	else {
+		if (check_and_replay_buffer()) Std_In_Is_Open = true;
+		   else result_ch = static_cast<std::remove_reference<decltype(result_ch)>::type>(kiv_hal::NControl_Codes::EOT);	//chyba, patrne je zavren vstupni handle			
+	}
 	
 	return Std_In_Is_Open;
 }
 
-bool Write_Char(const decltype(kiv_hal::TRegisters::rax.x)& input_ch) {
-	if (Keyboard_Buffer.size() >= Max_Keyboard_Buffer_Size)
-		return false;
-
+bool Write_Char(const char& input_ch) {
 	if (!Std_In_Is_Open) 
 		return false;
 
+	if (Keyboard_Buffer.size() >= Max_Keyboard_Buffer_Size)
+		return false;
+
 	Keyboard_Buffer.push(input_ch);
+	Recover_From_Cancel_Io = CancelIoEx(hConsoleInput, nullptr);	
+		//nemuze se zotavit uz tady, protoze nas planovac mohl prerusit	
 	return true;
 }
 
@@ -87,7 +104,7 @@ void __stdcall Keyboard_Handler(kiv_hal::TRegisters &context) {
 											break;
 
 
-		case kiv_hal::NKeyboard::Write_Char: context.flags.non_zero = Write_Char(context.rax.x) ? 1 : 0;
+		case kiv_hal::NKeyboard::Write_Char: context.flags.non_zero = Write_Char(context.rax.l) ? 1 : 0;
 											 break;
 
 		default: context.flags.carry = 1;			

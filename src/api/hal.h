@@ -117,7 +117,7 @@ namespace kiv_hal {
 								//			a) je-li ax==EOT, pak byl vstup korektne odpojen
 								//			b) doslo k chybe cteni z klavesnice
 
-		Write_Char,				//IN: ax kod znaku ke vlozeni do buffer klavesnice, napr. ke korektnimu ukonceni programu cekajiciho na EOT
+		Write_Char,				//IN: al kod znaku ke vlozeni do buffer klavesnice, napr. ke korektnimu ukonceni programu cekajiciho na EOT
 								//OUT: je-li  nastavena vlajka TRegisters::Flags::non_zero, pak byl znak uspesne vlozen, jinak chyba "buffer full"
 	};
 
